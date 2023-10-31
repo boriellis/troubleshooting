@@ -1,0 +1,252 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+There are three ways to subset a vector using an index: by position, logic, and name. Use `[]` to subset a vector.
+
+```{r}
+# A named vector
+x <- c(a = 1, b = 3, c = 5)
+# Index by position
+x[1]
+x[1:2]
+x[c(1, 3)]
+# Index by name
+x["a"]
+x[c("a", "c")]
+# Index by logic
+x[x > 3]
+x[names(x) == "b"]
+```
+
+Use the following code to answer questions **Q1** - **Q3**.
+
+```{r}
+plant_height_mm <- c(p0 = 45.94, p1 = 48.13, p2 = 48.14, p3 = 47.55, p4 = 43.85, p5 = 45.12, p6 = 45.49, p7 = 44.82, p8 = 48.4, p9 = 46.62)
+plant_species <- c("Arabidopsis thaliana", "Arabidopsis arenosa", "Arabidopsis lyrata", "Arabidopsis arenosa", "Arabidopsis arenosa", "Arabidopsis arenosa", "Arabidopsis lyrata", "Arabidopsis thaliana", "Arabidopsis thaliana", "Arabidopsis thaliana")
+```
+
+**Q1:** Match the following lines of code to indexing by position, logic, and name.
+
+```{r}
+plant_height_mm[plant_species == "Arabidopsis thaliana"] #logic
+plant_height_mm[c("p0", "p9", "p10")] #name
+plant_height_mm[7:10] #position
+```
+
+**Q2:** Fill in the blanks to (1) subset `plant_height_mm` where species is *Arabidopsis arenosa* and (2) subset `plant_height_mm` where species isn't *Arabidopsis thaliana*.
+
+```{r}
+# (1)
+plant_height_mm[plant_species == "Arabidopsis arenosa"]
+# (2)
+plant_height_mm[plant_species != "Arabidopsis thaliana"]
+```
+
+**Q3:** Subset `plant_species` where the plant height was more than a standard deviation greater than the mean.
+
+```{r}
+plant_species[plant_height_mm > mean(plant_height_mm) + sd(plant_height_mm)]
+```
+
+Recall that the columns of data frames are vectors, too. That means indexing and subsetting works with data frame columns. Answer questions **Q4** - **Q6** about indexing data frame columns.
+
+```{r}
+library(palmerpenguins)
+
+female_bill_length_mm <- penguins$bill_length_mm[!is.na(penguins$sex) & penguins$sex == "female"]
+```
+
+*didn't get to Q4-6 but here they are:*
+
+**Q4:** In the code chunk above, what vector are we subsetting? Are we indexing by position, logic, or name?
+
+**Q5:** Use the `seq()` function to subset every 10th element of the `island` column in `penguins`. Is this subsetting by position, logic, or name? Hint: use the `from`, `to`, and `by` parameters of `seq()`.
+
+**Q6:** Fill in the code chunk below to find the mean of the five largest bill lengths by species (`big_bill`). Then add another argument to `summarize` to create `lil_bill`, which should be the mean of the five smallest bill lengths. Hint for calculating `lil_bill`: combine `length()` and `:` to index by position.
+
+```{r}
+penguins %>% 
+  drop_na(bill_length_mm) %>% 
+  group_by(species) %>% 
+  arrange(desc(bill_length_mm)) %>% 
+  summarize(big_bill = mean(___[___]))
+```
+
+## **Subsetting lists**
+
+Subsetting lists is a little different than subsetting atomic vectors because you lose the guaranteed type consistency. All elements of an atomic vector are the same type, but a list can contain all sorts of things.
+
+As with atomic vectors, you can index lists by position, logic, and name using `[]`. But be careful: `[]` *always returns another list*. This is a really common error:
+
+```{r}
+# You start with a list
+l <- list(a = 1:3,
+          b = 4:6)
+# You want the mean of the first element, so you index by position
+mean(l[1])
+```
+
+This doesn't work because mean wants numbers and I gave it a whole boxcar of a list. bad!
+
+As the warning states, `mean()` only works on numeric or logical atomic vectors. Even though the first element of `l` is a numeric atomic vector, `l[1]` is not an atomic vector. This is because `[]` always returns another list when subsetting lists. So `l[1]` is still a list, it just contains the atomic vector `1:3`.
+
+You can reach inside lists to access their contents using `$` (name) or `[[]]` (name or position).
+
+```{r}
+mean(l$a)
+mean(l[["a"]])
+mean(l[[1]])
+```
+
+### **Exercises**
+
+Use the code below to answer questions **Q7** - **Q9** about subsetting and indexing lists.
+
+```{r}
+set.seed(1001)
+# A linear regression model
+x <- 1:10
+l <- list(x = 1:10,
+          y = 2 * x + rnorm(10, sd = 2),
+          coef = c(intercept = 1.326, slope = 1.635))
+plot(l$x, l$y)
+
+```
+
+**Q7:** What type of indexing is used in the call to `plot()` to get the x- and y-axis values?
+
+*name*
+
+**Q8:** Estimate the predicted values of `y` using `coef`.
+
+1.  How will you subset `x`? `[]`, `[[]]`, or `$`.
+
+2.  How will you subset the intercept and slope? Hint: you'll need to combine list subsetting *and* vector subsetting!
+
+3.  Apply the formula y=mx+b to estimate predicted `y`.
+
+```{r}
+l$x
+l$coef[2]
+
+y = l$coef[2]*l$x + l$coef[1]
+plot(y)
+```
+
+**Q9:** Create a plot by filling in the blanks in the following code.
+
+```{r}
+predicted_y <- l$coef[2]*l$x + l$coef[1]         # Your answer to Q8 goes here
+plot(l$x, l$y)               # Create a scatter plot of x and y (from l)
+lines(l$x, predicted_y, col = "red") # Add a line with the model predictions (observed x and predicted y)
+```
+
+# **Debugging**
+
+## **Minimum reproducible example**
+
+The small working example Jenny Bryan is talking about here is called a *minimum reproducible example*, or a **reprex** for short. Distilling a bug into the smallest amount of data and code that produces the bug is the single most valuable skill for debugging! Creating a reprex will often lead you directly to the source of the bug, and if it falls short of that it will at least narrow things down for other people to help you.
+
+A reprex has to be two things: reproducible and minimal. The `reprex` package will ensure your example is reproducible. You, the scientist, have to figure out minimal using your judgement.
+
+### **Reproducible**
+
+`reprex()` will create a reproducible example of some code for you and format the output so you can share it over GitHub, StackOverflow, etc. Call `reprex()` on a code chunk wrapped in `{}`.
+
+```{r}
+library(reprex)
+reprex({
+  library(palmerpenguins)
+  body_condition <- resid(lm(body_mass_g ~ flipper_length_mm, penguins))
+  summary(body_condition)
+})
+```
+
+`reprex` guarantees your code is reproducible by running it in a new session. 
+
+```{r}
+library(palmerpenguins)
+reprex({
+  body_condition <- resid(lm(body_mass_g ~ flipper_length_mm, penguins))
+  summary(body_condition)
+})
+```
+
+output is:
+
+```{r}
+body_condition <- resid(lm(body_mass_g ~ flipper_length_mm, penguins))
+#> Error in is.data.frame(data): object 'penguins' not found
+summary(body_condition)
+#> Error in summary(body_condition): object 'body_condition' not found
+```
+
+I moved `library(palmerpenguins)` out of my reprex, so now the output of `reprex()` has an error message saying `object 'penguins' not found`. This tells me I\'ve left something out and my reprex isn\'t reproducible on its own.
+
+### **Minimal**
+
+If debugging an error is finding a needle in a haystack, then making your reprex *minimal* shrinks the haystack.
+
+If I run this whole puppy I'm going to get a warning, because this isn't minimal:
+
+```{r}
+reprex({
+  # Load some packages
+  library(lubridate) #don't think we need this
+  library(nlme) #also no
+  library(palmerpenguins)
+  library(tidyverse)
+  
+  # Define some functions
+  
+  # Standard error of the mean
+  se_mean <- function(x) {
+    sd(x) / sqrt(length(x))
+  }
+  #this doesn't seem necessary?
+  
+  # Standard error of a proportion
+  se_prop <- function(p, n) {
+    sqrt(p * (1 - p) / n)
+  } 
+  #don't use this?
+  
+  # Body condition index (residual of body mass on structural size e.g. flipper or bill length)
+  bci <- function(mass, structural_size) {
+    resid(lm(mass ~ structural_size))
+  }
+  
+  df <- data.frame(
+    a = c("a", "a", "b", "b", "c", "c"),
+    x = 1:6,
+    y = c(2, 2.5, 2.7, 2.8, 3, 3.2)
+  )
+  
+  # Start manipulating data
+  penguins %>% 
+    arrange(body_mass_g) %>% #no!!
+    mutate(mass_kg = body_mass_g / 1000) %>%  #don't need this!
+    group_by(species, island) %>% 
+    summarize(n = sum(!is.na(body_mass_g)),
+              mean_mass_g = mean(body_mass_g),
+              sd_mass_g = sd(body_mass_g),
+              bci_flipper = bci(body_mass_g, flipper_length_mm),
+              bci_bill = bci(body_mass_g, bill_length_mm),
+              .groups = "drop")
+})
+```
+
+-   Small and simple inputs
+
+-   No extraneous packages
+
+-   No unnecessary function calls
+
+**Q10:** Identify 1-3 code chunks you think we can eliminate and still encounter the error.
+
+``` r
+
+```
