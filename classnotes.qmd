@@ -184,7 +184,7 @@ summary(body_condition)
 #> Error in summary(body_condition): object 'body_condition' not found
 ```
 
-I moved `library(palmerpenguins)` out of my reprex, so now the output of `reprex()` has an error message saying `object 'penguins' not found`. This tells me I\'ve left something out and my reprex isn\'t reproducible on its own.
+I moved `library(palmerpenguins)` out of my reprex, so now the output of `reprex()` has an error message saying `object 'penguins' not found`. This tells me I've left something out and my reprex isn't reproducible on its own.
 
 ### **Minimal**
 
@@ -248,5 +248,4 @@ reprex({
 **Q10:** Identify 1-3 code chunks you think we can eliminate and still encounter the error.
 
 ``` r
-
 ```
