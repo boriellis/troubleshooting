@@ -249,3 +249,67 @@ reprex({
 
 ``` r
 ```
+
+## **Debugging with `browser()`**
+
+It can be difficult to picture what the R environment looks like at the exact moment where a bug occurs. That\'s where `browser()` can help. This function *pauses execution*, allowing you to look around and explore. Let\'s return to the bug in our original code chunk, but add `browser()` to `bci()`.
+
+```{r}
+# Load some packages
+library(lubridate)
+library(nlme)
+library(palmerpenguins)
+library(tidyverse)
+
+# Define some functions
+
+# Standard error of the mean
+se_mean <- function(x) {
+  sd(x) / sqrt(length(x))
+}
+
+# Standard error of a proportion
+se_prop <- function(p, n) {
+  sqrt(p * (1 - p) / n)
+}
+
+# Body condition index (residual of body mass on structural size e.g. flipper or bill length)
+bci <- function(mass, structural_size) {
+  # ADD BROWSER HERE
+  browser()
+  resid(lm(mass ~ structural_size))
+}
+
+penguins
+
+
+# Start manipulating data
+penguins %>% 
+  arrange(body_mass_g) %>% 
+  mutate(mass_kg = body_mass_g / 1000) %>% 
+  group_by(species, island) %>% 
+  summarize(n = sum(!is.na(body_mass_g)),
+            mean_mass_g = mean(body_mass_g),
+            sd_mass_g = sd(body_mass_g),
+            bci_flipper = bci(body_mass_g, flipper_length_mm),
+            bci_bill = bci(body_mass_g, bill_length_mm),
+            .groups = "drop")
+```
+
+simpler tester to show me how browser works:
+
+```{r}
+f <- function(x){
+  browser()
+  mean(x) + sd(x)
+}
+
+df <- tibble(
+  a = c("i", "i", "j", "j"),
+  b = c(1,3,5,7)
+)
+
+df %>% 
+  group_by(a) %>% 
+  summarize(c = f(b))
+```
