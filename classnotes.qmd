@@ -252,7 +252,7 @@ reprex({
 
 ## **Debugging with `browser()`**
 
-It can be difficult to picture what the R environment looks like at the exact moment where a bug occurs. That\'s where `browser()` can help. This function *pauses execution*, allowing you to look around and explore. Let\'s return to the bug in our original code chunk, but add `browser()` to `bci()`.
+It can be difficult to picture what the R environment looks like at the exact moment where a bug occurs. That's where `browser()` can help. This function *pauses execution*, allowing you to look around and explore. Let's return to the bug in our original code chunk, but add `browser()` to `bci()`.
 
 ```{r}
 # Load some packages
